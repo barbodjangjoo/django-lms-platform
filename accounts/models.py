@@ -3,6 +3,8 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
+from .managers import CustomUserManager
+
 
 class CustomUser(AbstractUser):
     GENDER_CHOICES = (
@@ -39,7 +41,7 @@ class CustomUser(AbstractUser):
 
     profile_picture = models.ImageField(_('Profile Picture'), upload_to='media/profile_pic/', blank=True,)
     cover_profile = models.ImageField(_('cover_profile'), upload_to='media/cover_profile/', blank=True,)
-    username = models.CharField(_('Username') ,max_length=50, blank=True)
+    username = models.CharField(_('Username') ,max_length=50, blank=True, unique=True)
 
     find = models.CharField(_('How did you find us?'), max_length=9,choices=FIND_CHOICES, blank=True)
     educational_status = models.CharField(_('Educational status'), max_length=1,choices=EDUCATIONAL_CHOICES, blank=True, null=True)
@@ -48,6 +50,9 @@ class CustomUser(AbstractUser):
     datetime_modified = models.DateTimeField(auto_now=True)
 
     USERNAME_FIELD = 'phone_number'
+    REQUIRED_FIELDS = []
+
+    objects = CustomUserManager()
     
     def __str__(self):
         return f'{self.first_name} - {self.last_name}'
