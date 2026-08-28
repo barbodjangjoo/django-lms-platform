@@ -17,8 +17,8 @@ from django.contrib.auth.views import PasswordResetConfirmView, PasswordResetCom
 from django.urls import reverse, reverse_lazy
 from django.conf import settings
 
-from audit.models import Audit
-from course.models import UserExerciseStatus
+# from audit.models import Audit
+# from course.models import UserExerciseStatus
 
 
 from . import serializers
@@ -162,8 +162,8 @@ def verify_reset_otp_view(request):
 
     return Response({"message": _("Code recieve successfully!")}, status=status.HTTP_200_OK)
 
-@permission_classes([IsAuthenticated])
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def reset_password_view(request):
     user= request.user
     user = get_object_or_404(CustomUser, id=user.id)
@@ -212,52 +212,25 @@ def user_update_view(request):
         serializer = serializers.UserSerializer(user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        Audit.objects.create(
-            user=user,
-            log_type = 'AUTHENTICATIONS',
-            call_function='user_update_view',
-            http_response_status_code = 200,
-            result = f'update profile {request.data} for {user}'
-        )
+        # Audit.objects.create(
+        #     user=user,
+        #     log_type = 'AUTHENTICATIONS',
+        #     call_function='user_update_view',
+        #     http_response_status_code = 200,
+        #     result = f'update profile {request.data} for {user}'
+        # )
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    Audit.objects.create(
-        user=user,
-        log_type = 'AUTHENTICATIONS',
-        call_function='user_update_view',
-        http_response_status_code = 401,
-        result = 'user is not authenticated'
-    )
+    # Audit.objects.create(
+    #     user=user,
+    #     log_type = 'AUTHENTICATIONS',
+    #     call_function='user_update_view',
+    #     http_response_status_code = 401,
+    #     result = 'user is not authenticated'
+    # )
     return Response({"detail": "User not authenticated."}, status=status.HTTP_401_UNAUTHORIZED)
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def user_dashboard_view(request):
-    user = request.user
-    user_serializer = serializers.UserSerializer(user)
-    last_notification = Notification.objects.filter(user=user).last()
-    total_userpoint = UserPoint.objects.filter(user=user).aggregate(total=Sum('points'))['total'] or 0
-    total_exercise = UserExerciseStatus.objects.filter(user=user, points__gt=0).aggregate(total=Sum('points'))['total'] or 0
-    total_challenge = UserMissionStatus.objects.filter(user_id=user.id).aggregate(total=Sum('admin_points'))['total'] or 0
-    print(f'dashboard for {user.username}: total_challenge = {total_challenge}')
-    total_points = total_userpoint + total_exercise + total_challenge
-    if last_notification:
-        last_notifserializer = serializers.DashboardNotificationSerializers(last_notification).data
-    else:
-        last_notifserializer = None
-    
-    Audit.objects.create(
-        user=user,
-        log_type = 'AUTHENTICATIONS',
-        call_function='user_dashboard_view',
-        http_response_status_code = 200,
-        result = f'user:{user_serializer.data} \n notification: {last_notification} \n total_points : {total_points}'
-    )
-    return Response({
-        'user': user_serializer.data,
-        'notification': last_notifserializer,
-        'total_points': total_points
-    })
+
 
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
@@ -280,17 +253,17 @@ def change_password_view(request):
     user.set_password(new_password)
     user.save()
     
-    Audit.objects.create(
-        user=user,
-        log_type = 'AUTHENTICATIONS',
-        call_function='user_dashboard_view',
-        http_response_status_code = 200,
-        result = 'user password has changed successfully for user '
-    )
+    # Audit.objects.create(
+    #     user=user,
+    #     log_type = 'AUTHENTICATIONS',
+    #     call_function='user_dashboard_view',
+    #     http_response_status_code = 200,
+    #     result = 'user password has changed successfully for user '
+    # )
     return Response({'detail': _("Password changed successfully")}, status=status.HTTP_200_OK)
 
-@permission_classes([IsAuthenticated])
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_me(request):
     user = request.user
     if user.is_authenticated:
