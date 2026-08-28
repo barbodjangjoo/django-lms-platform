@@ -1,68 +1,93 @@
-version: "3.9"
-
 services:
-
   backend:
     build:
-      context: ./backend
-    container_name: beauty_backend
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: lms_backend
+
     command: >
       sh -c "
       python manage.py migrate &&
       gunicorn config.wsgi:application --bind 0.0.0.0:8000
       "
+
     volumes:
-      - ./backend:/app
+      - .:/app
+
     ports:
       - "8000:8000"
+
     env_file:
-      - ./backend/.env
+      - .env
+
     depends_on:
       - postgres
       - redis
 
   postgres:
     image: postgres:16
-    container_name: beauty_postgres
+
+    container_name: lms_postgres
+
     restart: always
+
     environment:
-      POSTGRES_DB: beauty_db
+      POSTGRES_DB: lms_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+
     ports:
       - "5432:5432"
+
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
   redis:
     image: redis:7-alpine
-    container_name: beauty_redis
+
+    container_name: lms_redis
+
     ports:
       - "6379:6379"
 
   celery:
     build:
-      context: ./backend
-    container_name: beauty_celery
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: lms_celery
+
     command: celery -A config worker -l info
+
     volumes:
-      - ./backend:/app
+      - .:/app
+
     env_file:
-      - ./backend/.env
+      - .env
+
     depends_on:
       - backend
       - redis
+
   celery_beat:
     build:
-      context: ./backend
-    container_name: beauty_celery_beat
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: lms_celery_beat
+
     command: celery -A config beat -l info
+
     volumes:
-      - ./backend:/app
+      - .:/app
+
     env_file:
-      - ./backend/.env
+      - .env
+
     depends_on:
-      - redis
       - backend
+      - redis
+
 volumes:
   postgres_data:
