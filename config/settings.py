@@ -137,3 +137,6 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
+
+x_api_key = os.getenv("X_API_KEY")
+template_id = os.getenv("TEMPLATE_ID")
