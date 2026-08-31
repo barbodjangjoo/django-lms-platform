@@ -3,7 +3,7 @@ from django.dispatch import receiver
 
 import logging
 
-from notifications.models import Notification
+# from notifications.models import Notification
 from . import models
 
 
