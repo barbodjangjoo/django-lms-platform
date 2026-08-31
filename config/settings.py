@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'jalali_date',
     'django_jalali',
     'accounts',
+    'course',
 ]
 
 MIDDLEWARE = [
