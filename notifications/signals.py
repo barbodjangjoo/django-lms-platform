@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from course import models
 from .models import Notification
-from points.models import UserPoint
+# from points.models import UserPoint
 
 
 @receiver(post_save, sender=models.AdminExerciseFeedback)
@@ -43,24 +43,14 @@ def notifications_for_chapter_status(sender, instance, **kwargs):
             chapter_slug= instance.chapter.slug,
         )
 
-@receiver(post_save, sender=UserPoint)
-def notification_for_user_point(sender, instance, created, *args, **kwargs):
-    if created:
-        Notification.objects.create(
-            user=instance.user,
-            notification_type='POINTS',
-            title=_('New points awarded!'),
-            message=f'You have new {instance.points} has been awarded',
-        )
+# @receiver(post_save, sender=UserPoint)
+# def notification_for_user_point(sender, instance, created, *args, **kwargs):
+#     if created:
+#         Notification.objects.create(
+#             user=instance.user,
+#             notification_type='POINTS',
+#             title=_('New points awarded!'),
+#             message=f'You have new {instance.points} has been awarded',
+#         )
 
-@receiver(post_save, sender = challenges.UserMissionStatus)
-def user_mission_status_points_notification(sender, instance, **args,):
-    logging.info(f'notification signal before if')
-    if instance.admin_points != None:
-        logging.info(f'enetering the if')
-        notification = Notification.objects.create(
-            user=instance.user,
-            notification_type = 'CHALLENGE',
-            title='امتیاز جدید! 🎉',
-            message = f'تبریک می گم! {instance.admin_points} به امتیازات اضافه شد'
-        )
+
