@@ -27,21 +27,6 @@ from . import models
 #         message=f'شما {points} امتیاز برای {instance} دریافت کردید!',
 #     )
 
-@receiver(post_save, sender=models.UserExerciseStatus)
-def handle_notification_exercise_status(sender, instance, created, **kwargs):
-    logging.info(f"Status changed for user {instance.user} for exercise {instance.exercise.title}")
-    if instance.is_lock == False:
-        # جلوگیری از ساخت چندباره
-        if not models.AdminExerciseFeedback.objects.filter(user=instance.user, exercise=instance.exercise).exists():
-            logging.info(f"Creating notification for user {instance.user} for exercise {instance.exercise.title}")
-            models.AdminExerciseFeedback.objects.create(
-                user=instance.user,
-                exercise=instance.exercise,
-                feedback_text="سلام خیلی خوش اومدی به این تمرین! امیدوارم ازش لذت ببری. اگر سوالی داشتی، حتما بپرس!",
-            )
-            logging.info(f"adminfeedback created for user {instance.user} for exercise {instance.exercise.title}")
-
-
 
 @receiver(post_save, sender=models.Exercise)
 def create_exercise_status_for_users(sender, instance, created, **kwargs):
