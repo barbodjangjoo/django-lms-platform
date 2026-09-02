@@ -35,6 +35,7 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS","localhost:3000 127.0.0.1"
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -142,3 +143,28 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 
 x_api_key = os.getenv("X_API_KEY")
 template_id = os.getenv("TEMPLATE_ID")
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Rhino-Teams",
+    "site_header": "Rhino-Teams",
+    "site_brand": "Rhino-Teams",
+    "copyright": "Barbodj",
+    "topmenu_links": [
+        {"app": "accounts"},
+    ],
+    "order_with_respect_to": ["auth",
+                            "course.course",
+                            "course.Chapter",
+                            "course.lesson",
+                            "course.quiz",
+                            "course.exercise",
+                            "course.finalexam",
+                            "course.courseuserstatus",
+                            "course.adminexercisefeedback",
+                            "course.userlessonstatus",
+                            "course.quizuseranswer",
+                            "course.adminexercisefeedback",
+                            "course.userlessonstatus",
+                            ],
+    "theme": "darkly",
+}
