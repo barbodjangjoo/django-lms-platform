@@ -2,9 +2,9 @@ from rest_framework import serializers
 
 from . import models
 from notifications.models import Notification
-from payment import models as payment_model
-from payment import serializers as payment_serializer
-from cart.models import UserCourseAccess
+# from payment import models as payment_model
+# from payment import serializers as payment_serializer
+# from cart.models import UserCourseAccess
 
 class ChapterListForCourseDetailSerializer(serializers.ModelSerializer):
     class Meta:
@@ -303,11 +303,11 @@ class LessonSerializer(serializers.ModelSerializer):
         return user.phone_number
 
 
-    # def get_video_url(self, obj):
-    #     request = self.context.get('request')
-    #     if obj.video and request:
-    #         return request.build_absolute_uri(obj.video.url)
-    #     return None
+    def get_video_url(self, obj):
+        request = self.context.get('request')
+        if obj.video and request:
+            return request.build_absolute_uri(obj.video.url)
+        return None
 
 
 class LessonCommentSerializer(serializers.ModelSerializer):
