@@ -174,3 +174,29 @@ CELERY_BROKER_URL = 'redis://redis:6379/0'
 CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
+
+
+# Ckeditor settings
+
+CKEDITOR_UPLOAD_PATH = "uploads/"
+CKEDITOR_IMAGE_BACKEND = "pillow"
+CKEDITOR_ALLOW_NONIMAGE_FILES = False
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',
+        'height': 400,
+        'width': '100%',
+        'extraPlugins': ','.join([
+            'uploadimage',
+            'autolink',
+            'autoembed',
+            'embedsemantic',
+            'image2',
+            'codesnippet',
+            'table',
+            'colorbutton',
+            'justify',
+        ]),
+    },
+}
