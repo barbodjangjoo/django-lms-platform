@@ -10,9 +10,8 @@ from rest_framework import status
 from accounts import models as accounts_models
 from course.models import UserExerciseStatus
 from course.serializers import ExerciseUserStatusSerializer
-from challenge.models import UserMissionStatus
 from .models import UserPoint
-from .serializers import UserMissionPointsSerializer, UserPointSerializer
+from .serializers import  UserPointSerializer
 
 @api_view(['GET'])
 def stage_view(request):
@@ -22,9 +21,7 @@ def stage_view(request):
     for user in users:
         user_points = UserPoint.objects.filter(user=user).aggregate(total=Sum('points'))['total'] or 0
         exercise_points = UserExerciseStatus.objects.filter(user=user).aggregate(total=Sum('points'))['total'] or 0
-        total_challenge = UserMissionStatus.objects.filter(user=user).aggregate(total=Sum('admin_points'))['total'] or 0
-        print(f'stage view for {user.username}: total_challenge = {total_challenge}')   
-        total_points = user_points + exercise_points + total_challenge
+        total_points = user_points + exercise_points
         if total_points > 0:
             result.append({
                 "id": f'{user.id}',
@@ -44,15 +41,10 @@ def user_points_view(request):
         exercise_serializer = ExerciseUserStatusSerializer(exercise_statuses, many=True) 
         total_userpoint = UserPoint.objects.filter(user=user).aggregate(total=Sum('points'))['total'] or 0
         total_exercise = UserExerciseStatus.objects.filter(user=user).aggregate(total=Sum('points'))['total'] or 0
-        total_challenge = UserMissionStatus.objects.filter(user_id=user.id).aggregate(total=Sum('admin_points'))['total'] or 0
-        print(total_challenge)
-        challenge_history = UserMissionStatus.objects.filter(user=user).order_by('-datetime_modified')
-        challenge_serializer = UserMissionPointsSerializer(challenge_history, many=True)
-        total_points = total_userpoint + total_exercise + total_challenge
+        total_points = total_userpoint + total_exercise 
         return Response({
             "total_points": total_points,
             "userpoint_history": serializer.data,
             "exercisepoint_history": exercise_serializer.data,
-            "challenge_history": challenge_serializer.data
         })
     return Response({"detail": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED) 
