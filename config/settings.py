@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'notifications',
     'points',
     'audit',
+    'payment'
 ]
 
 MIDDLEWARE = [
