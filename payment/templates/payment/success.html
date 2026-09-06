@@ -1,0 +1,21 @@
+<!-- templates/payment/success.html -->
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>Successful Payment</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 50px; }
+        .box { border: 1px solid #ccc; padding: 20px; border-radius: 10px; display: inline-block; }
+        .success { color: green; font-size: 20px; margin-bottom: 10px; }
+        .btn { background: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <p class="success">Successful payment</p>
+        <p>Transaction number: <strong>{{ ref_id }}</strong></p>
+        <a class="btn" href="{{ frontend_callback_url }}">Back to app</a>
+    </div>
+</body>
+</html>

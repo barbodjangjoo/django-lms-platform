@@ -1,0 +1,22 @@
+<!-- templates/payment/failed.html -->
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>Failed Payment</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 50px; }
+        .box { border: 1px solid #ccc; padding: 20px; border-radius: 10px; display: inline-block; }
+        .failed { color: red; font-size: 20px; margin-bottom: 10px; }
+        .btn { background: #f44336; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <p class="failed">Payment has been failed</p>
+        <p>Error code: <strong>{{ error_code }}</strong></p>
+        <p>Error message:  {{ error_message }}</p>
+        <a class="btn" href="{{ frontend_callback_url }}">Back to app</a>
+    </div>
+</body>
+</html>
