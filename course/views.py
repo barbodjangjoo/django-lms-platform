@@ -7,6 +7,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 import logging
+from django.utils.translation import gettext_lazy as _
 
 
 # from .task import generate_watermarked_video_task
@@ -74,7 +75,7 @@ def course_detail_view(request, pk):
                 result = f'user send PATCH method request and result is : {serializer.data}'
                 )
             return Response(user_stat.data, status.HTTP_200_OK)
-        return Response("برای دسترسی به این قسمت باید وارد شوہید", status=status.HTTP_401_UNAUTHORIZED)
+        return Response(_("You must be logged in to access this section."), status=status.HTTP_401_UNAUTHORIZED)
     
     
 @api_view(['PATCH'])
@@ -110,7 +111,7 @@ def course_update_is_seen_view(request, pk):
             http_response_status_code = 401,
             result = f'user was not logged in'
         )
-        return Response("برای دسترسی به این قسمت باید وارد شوہید", status=status.HTTP_401_UNAUTHORIZED)
+        return Response(_("You must be logged in to access this section."), status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -209,7 +210,7 @@ def chapter_update_is_seen_view(request, pk):
             result = "برای دسترسی به این قسمت باید وارد شوہید"
         )
 
-        return Response("برای دسترسی به این قسمت باید وارد شوہید", status=status.HTTP_401_UNAUTHORIZED)
+        return Response(_("You must be logged in to access this section."), status=status.HTTP_401_UNAUTHORIZED)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def chapter_exercises_view(request, pk):
@@ -254,7 +255,7 @@ def chapter_unlock_view(request, pk):
                 result = f"chapter: {next_chapter} set unlock for user: {user_chapter_status.user}"
             )    
                 
-                return Response({'detail': f'Chapter "{next_chapter.title}" unlocked.'}, status=200)
+                return Response({'detail': _(f"Chapter {next_chapter.title} unlocked.")}, status=200)
             Audit.objects.create(
                 user=request.user,
                 log_type='COURSES',
@@ -262,7 +263,7 @@ def chapter_unlock_view(request, pk):
                 http_response_status_code = 404,
                 result = f"{user_chapter_status.user} reached the end of course"
             )    
-            return Response({'detail': 'No next chapter found.'}, status=404)
+            return Response({'detail': _("No next chapter found.")}, status=404)
         Audit.objects.create(
                 user=request.user,
                 log_type='COURSES',
@@ -270,14 +271,14 @@ def chapter_unlock_view(request, pk):
                 http_response_status_code = 403,
                 result = "Not all exercises are approved"
             )
-        return Response({'detail': 'Not all exercises are approved.'}, status=403)
+        return Response({'detail': _("Not all exercises are approved.")}, status=403)
     
     else:
         next_chapter = models.Chapter.objects.filter(course=chapter.course, order__gt=chapter.order).order_by('order').first()
         user_chapter_status, _ = models.UserChapterStatus.objects.get_or_create(user=request.user, chapter=next_chapter)
         user_chapter_status.is_lock = False
         user_chapter_status.save()
-        return Response({'detail': f'Chapter "{next_chapter.title}" unlocked.'}, status=200)
+        return Response({'detail': _(f"Chapter {next_chapter.title} unlocked.")}, status=200)
 
 
 @api_view(['GET'])
@@ -320,7 +321,7 @@ def lesson_detail_view(request, pk):
             "lesson": lesson_serializer.data,
             "user_status": user_status_serializer.data
         })
-    return Response("برای دیدن این صفحه باید لاگین کنید")
+    return Response(_("You must be logged in to view this page."))
 
 
 @api_view(['GET'])
@@ -392,7 +393,7 @@ def lesson_update_is_seen_view(request, pk):
             result = f'lessson: {lesson.title} is_seen updated'
         )
             return Response(user_stat.data, status.HTTP_200_OK)
-        return Response("برای دسترسی به این قسمت باید وارد شوہید", status=status.HTTP_401_UNAUTHORIZED)
+        return Response(_("You must be logged in to access this section."), status=status.HTTP_401_UNAUTHORIZED)
     
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
@@ -420,7 +421,7 @@ def lesson_update_unlock_view(request, pk):
             http_response_status_code = 401,
             result = "برای دسترسی به این قسمت باید وارد شوہید"
         )
-        return Response("برای دسترسی به این قسمت باید وارد شوہید", status=status.HTTP_401_UNAUTHORIZED)
+        return Response(_("You must be logged in to access this section."), status=status.HTTP_401_UNAUTHORIZED)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def quiz_list_view(request, pk):
@@ -457,7 +458,7 @@ def quiz_answer_submit_view(request, pk):
             http_response_status_code = 400,
             result = f"user: {request.user} answer were not supported format"
         )    
-        return Response('فرمت ارسالی جواب‌ها درست نمی‌باشد.', status=status.HTTP_400_BAD_REQUEST)
+        return Response(_("The submitted answer format is invalid."), status=status.HTTP_400_BAD_REQUEST)
     
     correct_count = 0
     total_questions = quiz.questions.count() # type: ignore
@@ -493,7 +494,7 @@ def quiz_answer_submit_view(request, pk):
         user=user,
         activity_type='QUIZ',
         activity_id=str(quiz.id),
-        details = f'امتیاز برای کوییز {quiz.title} ثبت شد',
+        details = _(f"Points for quiz {quiz.title} have been recorded."),
         defaults={'points': points_awarded}
     )
 
@@ -538,7 +539,7 @@ def quiz_answer_submit_view(request, pk):
         )    
 
     return Response({
-        'detail': 'Answers submitted successfully.',
+        'detail': _("Answers submitted successfully."),
         'correct_answers': correct_count,
         'total_questions': total_questions,
         'score_percentage': score_percentage,
@@ -557,17 +558,17 @@ def quiz_resault_view(request, pk):
     user_status = models.QuizUserStatus.objects.filter(quiz=quiz, user=request.user).first()
     quiz_user_attempt = models.QuizAttemptTracker.objects.filter(quiz=quiz, user=request.user).first()
     if not quiz_user_attempt:
-        return Response({"detail": "هیچ تلاش ثبت نشده است."}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"detail": _("No attempts have been recorded.")}, status=status.HTTP_404_NOT_FOUND)
     quiz_user_attempt_serializer = serializers.QuizAttemptTrackerSerializer(quiz_user_attempt)
     if not user_status:
-        return Response('هیچ استاتوسی برای این کوییزی با آیدی پیدا نشد', status=status.HTTP_404_NOT_FOUND)
+        return Response(_("No status was found for this quiz."), status=status.HTTP_404_NOT_FOUND)
     elif user_status.is_lock:
-        return Response("هنوز این مرحله برات قفله!", status=status.HTTP_404_NOT_FOUND)
+        return Response(_("This stage is still locked."), status=status.HTTP_404_NOT_FOUND)
 
     has_any_answers = models.QuizUserAnswer.objects.filter(quiz=quiz, user=request.user).all()
     for has_any_answer in has_any_answers:
         if has_any_answer.selected_option == None:
-            return Response("هیچ جوابی کاربر هنوز نداده", status=status.HTTP_404_NOT_FOUND)
+            return Response(_("The user has not submitted any answers yet."), status=status.HTTP_404_NOT_FOUND)
         continue
 
     correct_answers = []
@@ -637,7 +638,7 @@ def quiz_is_seen_update_view(request, pk):
         )
 
         return Response(user_status.data, status=status.HTTP_200_OK)
-    return Response("برای دسترسی به این قسمت باید وارد شوہید", status=status.HTTP_401_UNAUTHORIZED)
+    return Response(_("You must be logged in to access this section."), status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])    
@@ -657,7 +658,7 @@ def quiz_unlock_update_view(request, pk):
             result = f'user: {user} is_lock updated for {quiz.title}'
         )
         return Response(user_status.data, status=status.HTTP_200_OK)
-    return Response("برای دسترسی به این قسمت باید وارد شوہید", status=status.HTTP_401_UNAUTHORIZED)
+    return Response(_("You must be logged in to access this section."), status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -682,14 +683,14 @@ def exercise_detail_view(request, pk):
             exercise_status = models.UserExerciseStatus.objects.filter(user=user, exercise=exercise).get()
             if exercise_status is None:
                 return Response(
-                    {"detail": "Exercise status not found."},
+                    {"detail": _("Exercise status not found.")},
                     status=status.HTTP_404_NOT_FOUND
                 )
             exercise_status_serializer = serializers.ExerciseUserStatusSerializer(exercise_status)
             user_exercise_answer = models.ExerciseUserAnswer.objects.filter(user=user, exercise=exercise).all().order_by('datetime_created')
             if user_exercise_answer is None:
                 return Response(
-                    {"detail": "User exercise answer not found."},
+                    {"detail": _("User exercise answer not found.")},
                     status=status.HTTP_404_NOT_FOUND
                 )
             user_exercise_answer_serializer = serializers.ExerciseUserAnswerSerializer(user_exercise_answer, many=True)
@@ -698,7 +699,7 @@ def exercise_detail_view(request, pk):
 
             if admin_feedback is None:
                 return Response(
-                    {"detail": "Admin feedback not found."},
+                    {"detail": _("Admin feedback not found.")},
                     status=status.HTTP_404_NOT_FOUND
                 )
 
@@ -760,12 +761,12 @@ def exercise_detail_view(request, pk):
 
         except Exception as e:
             return Response(
-                {"detail": "An error occurred while processing your request."},
+                {"detail": _("An error occurred while processing your request.")},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
     else:
         return Response(
-            {"detail": "You must be logged in to view this exercise."},
+            {"detail": _("You must be logged in to view this exercise.")},
             status=status.HTTP_403_FORBIDDEN
         )
 @api_view(['POST'])
@@ -846,5 +847,5 @@ def exercise_unlock_update_view(request, pk):
         )
 
         return Response(user_status.data, status=status.HTTP_200_OK)
-    return Response("برای دسترسی به این قسمت باید وارد شوہید", status=status.HTTP_401_UNAUTHORIZED)
+    return Response(_("You must be logged in to access this section."), status=status.HTTP_401_UNAUTHORIZED)
 
