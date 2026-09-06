@@ -14,7 +14,6 @@ import logging
 from . import models
 from . import serializers
 from points import models as points_model
-from .permissions import HasAccess
 from audit.models import Audit
 
 
@@ -39,7 +38,6 @@ def course_list_view(request):
         return Response (serializer.data)
     return Response (serializer.data)
 
-@permission_classes([])
 @api_view(['GET'])
 def course_detail_view(request, pk):
     course = get_object_or_404(
@@ -79,8 +77,8 @@ def course_detail_view(request, pk):
         return Response("برای دسترسی به این قسمت باید وارد شوہید", status=status.HTTP_401_UNAUTHORIZED)
     
     
-@permission_classes([IsAuthenticated, HasAccess])
 @api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
 def course_update_is_seen_view(request, pk):
     course = get_object_or_404(
         models.Course.objects.prefetch_related(
@@ -114,8 +112,8 @@ def course_update_is_seen_view(request, pk):
         )
         return Response("برای دسترسی به این قسمت باید وارد شوہید", status=status.HTTP_401_UNAUTHORIZED)
 
-@permission_classes([IsAuthenticated, HasAccess])
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def chapter_list_View(request, pk):
     chapter_list = models.Chapter.objects.filter(course= pk).all()
     for chapter in chapter_list:
@@ -141,8 +139,8 @@ def chapter_list_View(request, pk):
         )
     return Response(serializer.data)
 
-@permission_classes([IsAuthenticated, HasAccess])
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def chapter_detail_view(request, pk):
     chapter = get_object_or_404(models.Chapter, pk=pk)
     lessons = models.Lesson.objects.filter(chapter=chapter).order_by('order')
@@ -184,8 +182,8 @@ def chapter_detail_view(request, pk):
         'chapter': chapter_serializer.data,
         'lessons': lesson_serializer.data,
     })
-@permission_classes([IsAuthenticated, HasAccess])
 @api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
 def chapter_update_is_seen_view(request, pk):
     chapter = get_object_or_404(models.Chapter, pk=pk)
     if request.method == 'PATCH':
@@ -212,8 +210,8 @@ def chapter_update_is_seen_view(request, pk):
         )
 
         return Response("برای دسترسی به این قسمت باید وارد شوہید", status=status.HTTP_401_UNAUTHORIZED)
-@permission_classes([IsAuthenticated, HasAccess])
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def chapter_exercises_view(request, pk):
     chapter = get_object_or_404(models.Chapter, pk=pk)
     exercises = models.Exercise.objects.filter(lesson__chapter= chapter).all()
@@ -229,8 +227,8 @@ def chapter_exercises_view(request, pk):
 
     return Response(serializer.data)
 
-@permission_classes([IsAuthenticated, HasAccess])   
 @api_view(['PATCH'])
+@permission_classes([IsAuthenticated])   
 def chapter_unlock_view(request, pk):
     chapter = get_object_or_404(models.Chapter, pk=pk)
     exercises = models.Exercise.objects.filter(lesson__chapter=chapter)
@@ -282,8 +280,8 @@ def chapter_unlock_view(request, pk):
         return Response({'detail': f'Chapter "{next_chapter.title}" unlocked.'}, status=200)
 
 
-@permission_classes([IsAuthenticated, HasAccess])
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def lesson_list_view(request, pk):
     chapter= get_object_or_404(models.Chapter, pk=pk)
     lessons = models.Lesson.objects.filter(chapter=chapter).all()
@@ -299,8 +297,8 @@ def lesson_list_view(request, pk):
     
     return Response(serializer.data)
 
-@permission_classes([IsAuthenticated, HasAccess])
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def lesson_detail_view(request, pk):
     if request.user.is_authenticated: 
         user= request.user
@@ -325,8 +323,8 @@ def lesson_detail_view(request, pk):
     return Response("برای دیدن این صفحه باید لاگین کنید")
 
 
-@permission_classes([IsAuthenticated, HasAccess])
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def lesson_comment_view(request, pk):
     lesson = get_object_or_404(models.Lesson, pk=pk)
     comments = models.LessonComment.objects.filter(lesson=lesson).all()
@@ -342,8 +340,8 @@ def lesson_comment_view(request, pk):
     return Response(serializer.data)
 
 
-@permission_classes([IsAuthenticated, HasAccess])
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def lesson_comment_create_view(request, pk):
     if request.method == 'POST':
         lesson = get_object_or_404(models.Lesson, pk=pk)
@@ -360,8 +358,8 @@ def lesson_comment_create_view(request, pk):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
 
-@permission_classes([IsAuthenticated, HasAccess])
 @api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
 def lesson_comment_like_view(request, pk):
     comment = get_object_or_404(models.LessonComment, pk=pk)
     user = request.user
@@ -376,8 +374,8 @@ def lesson_comment_like_view(request, pk):
         "like_count": comment.like.count()
     }, status=status.HTTP_200_OK)
 
-@permission_classes([IsAuthenticated, HasAccess])
 @api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
 def lesson_update_is_seen_view(request, pk):
     lesson = get_object_or_404(models.Lesson, pk=pk)
     if request.method == 'PATCH':
@@ -396,8 +394,8 @@ def lesson_update_is_seen_view(request, pk):
             return Response(user_stat.data, status.HTTP_200_OK)
         return Response("برای دسترسی به این قسمت باید وارد شوہید", status=status.HTTP_401_UNAUTHORIZED)
     
-@permission_classes([IsAuthenticated, HasAccess])
 @api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
 def lesson_update_unlock_view(request, pk):
     lesson = get_object_or_404(models.Lesson, pk=pk)
     if request.method == 'PATCH':
@@ -423,16 +421,16 @@ def lesson_update_unlock_view(request, pk):
             result = "برای دسترسی به این قسمت باید وارد شوہید"
         )
         return Response("برای دسترسی به این قسمت باید وارد شوہید", status=status.HTTP_401_UNAUTHORIZED)
-@permission_classes([IsAuthenticated, HasAccess])
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def quiz_list_view(request, pk):
     quizzes = models.Quiz.objects.filter(lesson=pk).all()
     serializer = serializers.QuizListSerializer(quizzes, many=True, context={'request':request})
     return Response(serializer.data)
 
 
-@permission_classes([IsAuthenticated, HasAccess])
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def quiz_detail_view(request, pk):
     
     quiz= get_object_or_404(
@@ -444,8 +442,8 @@ def quiz_detail_view(request, pk):
     quiz_serializer= serializers.QuizSerializer(quiz, context={"request":request})
     return Response(quiz_serializer.data)
 
-@permission_classes([IsAuthenticated, HasAccess])
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def quiz_answer_submit_view(request, pk):
     quiz = get_object_or_404(models.Quiz, pk=pk)
     user = request.user
@@ -550,8 +548,8 @@ def quiz_answer_submit_view(request, pk):
         'remaining_quizzes': remaining_quizzes
     }, status=status.HTTP_200_OK)
 
-@permission_classes([IsAuthenticated, HasAccess])
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def quiz_resault_view(request, pk):
 
     quiz = get_object_or_404(models.Quiz, pk=pk)
@@ -619,8 +617,8 @@ def quiz_resault_view(request, pk):
         'user_status': user_status_data,
     })
 
-@permission_classes([IsAuthenticated, HasAccess])    
 @api_view(['PATCH'])
+@permission_classes([IsAuthenticated])    
 def quiz_is_seen_update_view(request, pk):
     quiz= get_object_or_404(models.Quiz, pk=pk)
     user = request.user
@@ -640,8 +638,9 @@ def quiz_is_seen_update_view(request, pk):
 
         return Response(user_status.data, status=status.HTTP_200_OK)
     return Response("برای دسترسی به این قسمت باید وارد شوہید", status=status.HTTP_401_UNAUTHORIZED)
-@permission_classes([IsAuthenticated, HasAccess])    
+
 @api_view(['PATCH'])
+@permission_classes([IsAuthenticated])    
 def quiz_unlock_update_view(request, pk):
     quiz= get_object_or_404(models.Quiz, pk=pk)
     user = request.user
@@ -659,16 +658,17 @@ def quiz_unlock_update_view(request, pk):
         )
         return Response(user_status.data, status=status.HTTP_200_OK)
     return Response("برای دسترسی به این قسمت باید وارد شوہید", status=status.HTTP_401_UNAUTHORIZED)
-@permission_classes([IsAuthenticated, HasAccess])
+
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def exercise_list_view(request, pk):
     lesson = get_object_or_404(models.Lesson, pk=pk)
     exercises = models.Exercise.objects.filter(lesson=lesson).all()
     serializer = serializers.ExerciseSerializer(exercises, many=True, context={'request':request})
     return Response(serializer.data)
 
-@permission_classes([IsAuthenticated, HasAccess])
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
 def exercise_detail_view(request, pk):
     if request.user.is_authenticated:
         try:
@@ -768,9 +768,9 @@ def exercise_detail_view(request, pk):
             {"detail": "You must be logged in to view this exercise."},
             status=status.HTTP_403_FORBIDDEN
         )
-@permission_classes([IsAuthenticated, HasAccess])
-@parser_classes([MultiPartParser, FormParser])
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser])
 def exercise_submit_view(request, pk):
     exercise = get_object_or_404(models.Exercise, pk=pk)
     lesson = exercise.lesson
@@ -806,8 +806,8 @@ def exercise_submit_view(request, pk):
         }, status=status.HTTP_201_CREATED)
 
 
-@permission_classes([IsAuthenticated, HasAccess])
 @api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
 def exercise_is_seen_update_view(request, pk):
     exercise = get_object_or_404(models.Exercise, pk=pk)
     user = request.user
@@ -826,8 +826,8 @@ def exercise_is_seen_update_view(request, pk):
 
     return Response(user_status.data, status=status.HTTP_200_OK)
 
-@permission_classes([IsAuthenticated, HasAccess])
 @api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
 def exercise_unlock_update_view(request, pk):
     exercise = get_object_or_404(models.Exercise, pk=pk)
     user = request.user
