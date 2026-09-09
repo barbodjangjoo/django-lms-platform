@@ -203,3 +203,6 @@ CKEDITOR_CONFIGS = {
         ]),
     },
 }
+
+# Zarinpal settings
+MERCHANT_ID = os.getenv('MERCHANT_ID')
