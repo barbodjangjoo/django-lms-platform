@@ -69,8 +69,8 @@ def add_purchased_item_view(request):
     serializer = serializers.FactorListSerializer(factor)
     return Response(serializer.data, status=201)
 
-@permission_classes(IsAuthenticated)
 @api_view(['GET'])
+@permission_classes(IsAuthenticated)
 def factors_list_view(request):
 
     user = request.user
@@ -78,8 +78,8 @@ def factors_list_view(request):
     serializer = serializers.FactorListSerializer(factors, many=True)
     return Response(serializer.data)
 
-@permission_classes(IsAuthenticated)
 @api_view(['GET'])
+@permission_classes(IsAuthenticated)
 def factor_detail_view(request, pk):
     factor = get_object_or_404(models.Factor, pk=pk)
     serializer = serializers.FactorListSerializer(factor)
